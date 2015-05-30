@@ -58,8 +58,14 @@
   <ItemGroup>
     <Compile Include="Api\DVBViewerAPI.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
+    <Compile Include="EntryPoint.cs" />
+    <Compile Include="GeneralHelpers\Helpers.cs" />
+    <Compile Include="LiveTVService.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TunerHost\HostDefinitions\DVBViewer.cs" />
+    <Compile Include="TunerHost\ITunerHost.cs" />
+    <Compile Include="TunerHost\TunerHostFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="EPGProvider\" />
