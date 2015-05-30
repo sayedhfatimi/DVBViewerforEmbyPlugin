@@ -30,7 +30,7 @@ namespace DVBViewer.TunerHost
     {
         public static IEnumerable<Type> GetAllTunerHostTypes()
         {
-            return Helpers.GetTypesInNamespace(Assembly.GetExecutingAssembly(), "EmbyTV.TunerHost.HostDefinitions");
+            return Helpers.GetTypesInNamespace(Assembly.GetExecutingAssembly(), "DVBViewer.TunerHost.HostDefinitions");
         }
         public static List<FieldBuilder> BuildDefaultForTunerHostsBuilders()
         {
