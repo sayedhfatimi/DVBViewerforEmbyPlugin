@@ -11,11 +11,11 @@ namespace DVBViewer.Api
 
         public static string host { get; set; }
 
-        public static string port { get; set; }
+        public static string Port { get; set; }
 
         public static async Task<XmlElement> getChannels()
         {
-            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + port + "/api/getchannelsxml.html?upnp=1&logo=1");
+            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + Port + "/api/getchannelsxml.html?upnp=1&logo=1");
 
             s.Replace("&", "&amp;");
 
@@ -28,7 +28,7 @@ namespace DVBViewer.Api
 
         public static async Task<XmlElement> getEPGData(string EPGID)
         {
-            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + port + "/api/epg.html?lvl=2&channel=" + EPGID);
+            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + Port + "/api/epg.html?lvl=2&channel=" + EPGID);
 
             s.Remove(0, 41);
 
@@ -41,7 +41,7 @@ namespace DVBViewer.Api
 
         public static async Task<string> getVersion()
         {
-            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + port + "/api/version.html");
+            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + Port + "/api/version.html");
 
             xmlDoc.LoadXml(s);
 

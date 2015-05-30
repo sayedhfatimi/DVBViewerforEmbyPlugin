@@ -39,26 +39,10 @@ namespace DVBViewer
             _xmlSerializer = xmlSerializer;
             _appPaths = appPaths;
             _logger = logManager.GetLogger(Name);
-            _logger.Info("Directory is: " + DataPath);
-            _dvbEpg = new DVBViewerEPG();
+            _dvbEpg = new DVBViewerEPG(_logger, _jsonSerializer, _httpClient);
 
             RefreshConfigData(false, CancellationToken.None);
             Plugin.Instance.ConfigurationUpdated += (sender, args) => RefreshConfigData(true, CancellationToken.None);
-        }
-
-        public async void RefreshConfigData(bool isConfigChange, CancellationToken cancellationToken)
-        {
-            var config = Plugin.Instance.Configuration;
-            if (config.TunerHostsConfiguration != null)
-            {
-                _tunerServer = TunerHostFactory.CreateTunerHosts(config.TunerHostsConfiguration, _logger, _jsonSerializer, _httpClient);
-                for (var i = 0; i < _tunerServer.Count(); i++)
-                {
-                    await _tunerServer[i].GetDeviceInfo(cancellationToken);
-                    config.TunerHostsConfiguration[i].ServerId = _tunerServer[i].HostId;
-                }
-            }
-            Plugin.Instance.SaveConfiguration();
         }
 
         public string DataPath
@@ -210,7 +194,7 @@ namespace DVBViewer
 
         public void CreateFileCopy(object obj, string filePath)
         {
-            GeneralHelpers.Helpers.CreateFileCopy(obj, filePath, _xmlSerializer);
+            Helpers.CreateFileCopy(obj, filePath, _xmlSerializer);
         }
 
         private List<ProgramInfo> GetEpgDataForAllChannels()
@@ -234,6 +218,21 @@ namespace DVBViewer
                 return epgData.FirstOrDefault(p => p.Id == programId);
             }
             return null;
+        }
+
+        public async void RefreshConfigData(bool isConfigChange, CancellationToken cancellationToken)
+        {
+            var config = Plugin.Instance.Configuration;
+            if (config.TunerHostsConfiguration != null)
+            {
+                _tunerServer = TunerHostFactory.CreateTunerHosts(config.TunerHostsConfiguration, _logger, _jsonSerializer, _httpClient);
+                for (var i = 0; i < _tunerServer.Count(); i++)
+                {
+                    await _tunerServer[i].GetDeviceInfo(cancellationToken);
+                    config.TunerHostsConfiguration[i].ServerId = _tunerServer[i].HostId;
+                }
+            }
+            Plugin.Instance.SaveConfiguration();
         }
 
         public Task<IEnumerable<TimerInfo>> GetTimersAsync(CancellationToken cancellationToken)

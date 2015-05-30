@@ -21,21 +21,30 @@ namespace DVBViewer.TunerHost.HostDefinitions
     public class DVBViewer : ITunerHost
     {
         List<ChannelInfo> ChannelList;
-
+        private readonly ILogger _logger;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly IHttpClient _httpClient;
+        public string deviceType { get; set; }
         public bool Enabled { get; set; }
         public string model { get; set; }
         public string deviceID { get; set; }
-        public string firmware { get; set; }
+        public string Port { get { return DVBViewerAPI.Port; } set { DVBViewerAPI.Port = value; } }
+        public string Url { get { return DVBViewerAPI.host; } set { DVBViewerAPI.host = value; } }
         public List<LiveTvTunerInfo> tuners;
 
         public string getWebUrl()
         {
-            return "http://" + DVBViewerAPI.host + ":" + DVBViewerAPI.port;
+            return "http://" + DVBViewerAPI.host + ":" + DVBViewerAPI.Port;
         }
 
         public DVBViewer(ILogger logger, IJsonSerializer jsonSerializer, IHttpClient httpClient)
         {
             tuners = new List<LiveTvTunerInfo>();
+            _logger = logger;
+            _jsonSerializer = jsonSerializer;
+            _httpClient = httpClient;
+            model = "";
+            deviceID = "";
         }
 
         public DVBViewer()
@@ -61,11 +70,6 @@ namespace DVBViewer.TunerHost.HostDefinitions
         {
             model = "";
             deviceID = "";
-            firmware = "";
-            if (String.IsNullOrWhiteSpace(model))
-            {
-                throw new ApplicationException("Failed to locate the tuner host.");
-            }
         }
 
         public async Task<List<LiveTvTunerInfo>> GetTunersInfo(CancellationToken cancellationToken)

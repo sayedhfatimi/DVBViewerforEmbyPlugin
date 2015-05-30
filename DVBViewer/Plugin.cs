@@ -14,19 +14,11 @@ namespace DVBViewer
             Instance = this;
         }
 
-        /// <summary>
-        /// Gets the name of the plugin
-        /// </summary>
-        /// <value>The name.</value>
         public override string Name
         {
             get { return "DVBViewer"; }
         }
 
-        /// <summary>
-        /// Gets the description.
-        /// </summary>
-        /// <value>The description.</value>
         public override string Description
         {
             get
@@ -35,10 +27,6 @@ namespace DVBViewer
             }
         }
 
-        /// <summary>
-        /// Gets the instance.
-        /// </summary>
-        /// <value>The instance.</value>
         public static Plugin Instance { get; private set; }
 
         public event EventHandler ConfigurationUpdated;
