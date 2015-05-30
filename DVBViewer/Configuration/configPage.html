@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>DVBViewer</title>
+</head>
+<body>
+    <div data-role="page" class="page type-interior pluginConfigurationPage DVBViewerConfigurationPage">
+
+        <div data-role="content">
+            <div class="content-primary">
+                <div class="readOnlyContent">
+
+                    <p>Add one or more tuner hosts.</p>
+
+                    <div class="folderSyncTargets" id="hostsTable">
+
+                    </div>
+                </div>
+
+                <div data-role="popup" id="popupAddHost" class="popup" style="min-width: 300px;">
+                    <form class="addTunerHostForm" id="addTunerHostForm">
+                        <div class="ui-bar-a" style="text-align: center; padding: 0 20px;">
+                            <h3 class="popupHeader"></h3>
+                        </div>
+                        <div data-role="content">
+                            <ul class="ulForm" data-role="listview" id="hostSettings" style="margin-top: 0;"></ul>
+                            <ul class="ulForm" data-role="listview" style="margin-top: .5em;">
+                                <li>
+                                    <input type="hidden" id="ServerId" />
+                                    <input type="hidden" id="HostType" />
+                                    <button type="submit" data-theme="b">Save</button>
+                                    <button type="button" data-icon="delete" onclick=" $(this).parents('.popup').popup('close'); ">
+                                        Cancel
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var DVBViewerConfigurationPage = { pluginUniqueId: "a77e4479-24df-4578-95b0-4674ef6414a0" };
+                /*http://stackoverflow.com/questions/237104/array-containsobj-in-javascript*/
+                function contains(a, obj) {
+                    for (var i = 0; i < a.length; i++) {
+                        if (a[i] === obj) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                function createField(field, position, size) {
+                    var ul = document.getElementById("hostSettings");
+                    var li = document.createElement("li");
+                    var input = document.createElement("input");;
+                    var label = document.createElement("label");
+                    var description = document.createElement("div");
+                    description.setAttribute("class", "fieldDescription");
+                    description.innerText = field.Description;
+                    label.setAttribute("for", field.Name);
+                    label.innerText = field.Label;
+                    if (field.Type == "Text") {
+                        input.setAttribute("type", "text");
+                        input.value = field.defaultValue;
+                    }
+                    if (field.Type == "Checkbox") {
+                        input.setAttribute("type", "checkbox");
+                        input.setAttribute("data-mini", "true");
+                        if (field.defaultValue == "true" || field.defaultValue == "on") {
+                            input.checked = field.defaultValue;
+                        }
+                    }
+                    input.setAttribute("class", "HostUserField");
+                    input.setAttribute("id", field.Name);
+                    var liClass = "ui-li-static ui-body-inherit";
+                    li.setAttribute("class", liClass);
+                    li.appendChild(label);
+                    li.appendChild(input);
+                    li.appendChild(description);
+                    ul.appendChild(li);
+                }
+                function createAllFields(settings) {
+                    if (settings.DefaultConfigurationFields[0]) {
+                        for (var i = 0; i < settings.DefaultConfigurationFields.length; i++) {
+                            createField(settings.DefaultConfigurationFields[i], i, settings.DefaultConfigurationFields.length - 1);
+                        }
+                    }
+                    $('#HostType').val(settings.Type);
+                }
+                function getObjectByProperty(objects, propertyName, propertyValue) {
+                    for (var i = 0; i < objects.length; i++) {
+                        if (objects[i][propertyName] == propertyValue) return objects[i];
+                    }
+                }
+                function buildOptionsFor(targets) {
+                    var options = "";
+                    for (var i = 0, length = targets.length; i < length; i++) {
+                        options += '<li  data-icon="plus" style="text-align: left;" >' + targets[i].Type + '</li>';
+                    }
+                    return options;
+                }
+                function getTargetListHtml(config,defaults) {
+                    var html = '';
+                    html += '<ul id="tunerHostList" data-inset="true" data-role="listview" data-split-icon="minus">';
+                    html += '<li data-role="list-divider">Tuner Hosts ';
+                    html += '<button data-icon="plus" data-mini="true" data-iconpos="notext" data-inline="true" class="btnAddFolder"></button> <ul class="selectBox" style="ext-align: left;list-style-type: none; margin: 0; display:none;">' + buildOptionsFor(defaults) + '</ul>';
+                    html += '</li>';
+                    var targets = config.TunerHostsConfiguration;
+                    if (targets != null) {
+                        for (var i = 0, length = targets.length; i < length; i++) {
+                            var target = targets[i];
+                            html += '<li>';
+                            html += '<a href="#" data-id="' + target.ServerId + '"' + 'data-HostType="' + target.ServerType + '" class="btnEditFolder">';
+                            html += '<h3>';
+                            html += target.ServerId;
+                            html += '</h3>';
+                            html += '<p>';
+                            html += target.ServerType;
+                            html += '</p>';
+                            html += '</a>';
+                            html += '<a href="#" data-id="' + target.ServerId + '" class="btnDeleteFolder"></a>';
+                            html += '</li>';
+                        }
+                    }
+                    html += '</ul>';
+                    return html;
+                }
+                function deleteFolder(page, id) {
+                    Dashboard.confirm("Are you sure you wish to remove this device?", "Confirm Deletion", function (result) {
+                        if (result) {
+                            ApiClient.getPluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId).done(function (config) {
+                                var index = -1;
+                                for (var i = 0; i < config.TunerHostsConfiguration.length; i++) {
+                                    if (config.TunerHostsConfiguration[i].ServerId == id) {
+                                        index = i;
+                                    }
+                                }
+                                if (index > -1) {
+                                    config.TunerHostsConfiguration.splice(index, 1);
+                                }
+                                ApiClient.updatePluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult).done(function () {
+                                    fillFormData(page);
+                                });
+                            });
+                        }
+                    });
+                }
+                function editFolder(page, id) {
+                    ApiClient.getPluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId).done(function (config) {
+                        editFolderObject(page, getObjectByProperty(config.TunerHostsConfiguration, "ServerId", id));
+                    });
+                }
+                function setFormValues(userFields) {
+                    for (var i = 0; i < userFields.length; i++) {
+                        if ($("#" + userFields[i].Name).length && userFields[i].Value) {
+                            if ($("#" + userFields[i].Name).attr("type") == "text") {
+                                $("#" + userFields[i].Name).val(userFields[i].Value);
+                            }
+                            if ($("#" + userFields[i].Name).attr("type") == "checkbox") {
+                                $("#" + userFields[i].Name).checked((userFields[i].Value === "true" ) || (userFields[i].Value === "on")).checkboxradio("refresh");
+                            }
+                        }
+                    }
+                }
+                function editFolderObject(page, folder) {
+                    $('#popupAddHost').trigger("create");
+                    if (folder != null) {
+                        $('.popupHeader', page).html('Edit Tuner Host');
+                        setFormValues(folder.UserFields);
+                        $('#ServerId').val(folder.ServerId);
+                    } else {
+                        $('.popupHeader', page).html('Add Tuner Host');
+                        $('#ServerId').val("new");
+                    }
+                    $('#popupAddHost').popup('open');
+                }
+                function loadPageData(page, config,tunerDefaults) {
+                    var elem = $('#hostsTable').html(getTargetListHtml(config,tunerDefaults)).trigger('create');
+                    $('.btnDeleteFolder').on('click', function () {
+                        deleteFolder(page, this.getAttribute('data-id'));
+                    });
+                    $('.btnEditFolder').on('click', function () {
+                        $('#hostSettings').empty();
+                        var defaults = getObjectByProperty(tunerDefaults, "Type", this.getAttribute('data-hosttype'));
+                        createAllFields(defaults);
+                        editFolder(page, this.getAttribute('data-id'));
+                    });
+                    $('.btnAddFolder').on('click', function () {
+                        $('.selectBox').slideToggle(200).css('borderTop', 'none').css("display", "inline-block");
+                        $('.selectBox li').click(function () {
+                            $('#hostSettings').empty();
+                            var defaults = getObjectByProperty(tunerDefaults, "Type", $(this).text());
+                            $('.selectBox').slideUp(200);
+                            createAllFields(defaults);
+                            editFolderObject(page, null);
+                        });
+                    });
+                }
+                function fillFormData(page) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId).done(function (config) {
+                        ApiClient.getJSON(ApiClient.getUrl('/DVBViewer/Tuner/ConfigurationFields')).done(function(response) {
+                            loadPageData(page, config, response.DefaultsBuilders);
+                            Dashboard.hideLoadingMsg();
+                        });
+                    });
+                }
+                $('.DVBViewerConfigurationPage').on('pageshow', function (event) { fillFormData(this); });
+                function GetVal(element) {
+                    if ($(element).is(':checkbox')) {
+                        return $(element).is(':checked');
+                    }
+                    return $(element).val();
+                }
+                $('#addTunerHostForm').off('submit.plugin').on('submit.plugin', function (e) {
+                    Dashboard.showLoadingMsg();
+                    var form = this;
+                    var page = $(form).parents('.page');
+                    ApiClient.getPluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId).done(function (config) {
+                        var userConfig = {
+                            ServerId: $('#ServerId').val(),
+                            ServerType: $('#HostType').val(),
+                            UserFields: []
+                        }
+                        $('.HostUserField').each(function () {
+                            userConfig.UserFields[userConfig.UserFields.length] = {
+                                Name: $(this).attr('id'),
+                                Value: GetVal(this)
+                        };
+                        });
+                        var index = -1;
+                        if (config.TunerHostsConfiguration != null) {
+                            for (var i = 0; i < config.TunerHostsConfiguration.length; i++) {
+                                if (config.TunerHostsConfiguration[i].ServerId == userConfig.ServerId) {
+                                    index = i;
+                                }
+                            }
+                            if (index > -1) {
+                                config.TunerHostsConfiguration[index] = userConfig;
+                            } else {
+                                config.TunerHostsConfiguration[config.TunerHostsConfiguration.length] = userConfig;
+                            }
+                        } else {
+                            config.TunerHostsConfiguration = [userConfig];
+                        }
+                        ApiClient.updatePluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult).done(function () {
+                            fillFormData(page);
+                        });
+                    });
+                    return false;
+                });
+            })();
+        </script>
+    </div>
+</body>
+</html>

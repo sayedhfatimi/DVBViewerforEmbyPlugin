@@ -3,14 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DVBViewer.Configuration;
 using DVBViewer.GeneralHelpers;
 using MediaBrowser.Model.Dto;
-using DVBViewer.Api;
 
 namespace DVBViewer.TunerHost
 {
@@ -25,7 +22,6 @@ namespace DVBViewer.TunerHost
         string getWebUrl();
         MediaSourceInfo GetChannelStreamInfo(string channelId);
     }
-
 
     public static class TunerHostStatics
     {
@@ -49,5 +45,4 @@ namespace DVBViewer.TunerHost
             return defaultTunerHostsConfigFields;
         }
     }
-
 }
