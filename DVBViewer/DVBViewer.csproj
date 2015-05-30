@@ -46,6 +46,10 @@
       <HintPath>..\packages\MediaBrowser.Common.3.0.622\lib\net45\MediaBrowser.Model.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="ServiceStack.Interfaces, Version=4.0.0.0, Culture=neutral, PublicKeyToken=e06fbc6124f57c43, processorArchitecture=MSIL">
+      <HintPath>..\packages\ServiceStack.Interfaces.4.0.35\lib\portable-wp80+sl5+net40+win8+monotouch+monoandroid\ServiceStack.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\DVBViewerAPI.cs" />
+    <Compile Include="Api\DVBViewerConfigService.cs" />
     <Compile Include="Configuration\DVBViewerConfigurationPage.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="EntryPoint.cs" />

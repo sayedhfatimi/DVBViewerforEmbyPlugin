@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DVBViewer.Configuration;
@@ -23,11 +25,12 @@ namespace DVBViewer.TunerHost
         MediaSourceInfo GetChannelStreamInfo(string channelId);
     }
 
+
     public static class TunerHostStatics
     {
         public static IEnumerable<Type> GetAllTunerHostTypes()
         {
-            return Helpers.GetTypesInNamespace(Assembly.GetExecutingAssembly(), "DVBViewer.TunerHost.HostDefinitions");
+            return Helpers.GetTypesInNamespace(Assembly.GetExecutingAssembly(), "EmbyTV.TunerHost.HostDefinitions");
         }
         public static List<FieldBuilder> BuildDefaultForTunerHostsBuilders()
         {
@@ -45,4 +48,5 @@ namespace DVBViewer.TunerHost
             return defaultTunerHostsConfigFields;
         }
     }
+
 }

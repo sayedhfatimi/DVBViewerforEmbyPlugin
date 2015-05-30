@@ -1,6 +1,7 @@
 ﻿using MediaBrowser.Common.Configuration;
 using MediaBrowser.Controller.Drawing;
 using MediaBrowser.Controller.LiveTv;
+using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Net;
@@ -13,6 +14,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DVBViewer.EPGProvider;
 using DVBViewer.TunerHost;
+using DVBViewer.Configuration;
+using DVBViewer.GeneralHelpers;
+using MediaBrowser.Model.LiveTv;
 
 namespace DVBViewer
 {
@@ -21,20 +25,40 @@ namespace DVBViewer
         private List<ITunerHost> _tunerServer;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly DVBViewerEPG _dvbEpg;
-        private bool FirstRun;
+        private readonly IHttpClient _httpClient;
         private readonly IXmlSerializer _xmlSerializer;
         private Dictionary<string, MediaSourceInfo> streams;
         private readonly IApplicationPaths _appPaths;
         private readonly ILogger _logger;
 
-        public LiveTvService(IJsonSerializer jsonSerializer, ILogManager logManager, IXmlSerializer xmlSerializer, IApplicationPaths appPaths)
+        public LiveTvService(IHttpClient httpClient, IJsonSerializer jsonSerializer, ILogManager logManager, IXmlSerializer xmlSerializer, IApplicationPaths appPaths)
         {
+            _httpClient = httpClient;
             _jsonSerializer = jsonSerializer;
-            FirstRun = true;
             streams = new Dictionary<string, MediaSourceInfo>();
             _xmlSerializer = xmlSerializer;
             _appPaths = appPaths;
+            _logger = logManager.GetLogger(Name);
+            _logger.Info("Directory is: " + DataPath);
             _dvbEpg = new DVBViewerEPG();
+
+            RefreshConfigData(false, CancellationToken.None);
+            Plugin.Instance.ConfigurationUpdated += (sender, args) => RefreshConfigData(true, CancellationToken.None);
+        }
+
+        public async void RefreshConfigData(bool isConfigChange, CancellationToken cancellationToken)
+        {
+            var config = Plugin.Instance.Configuration;
+            if (config.TunerHostsConfiguration != null)
+            {
+                _tunerServer = TunerHostFactory.CreateTunerHosts(config.TunerHostsConfiguration, _logger, _jsonSerializer, _httpClient);
+                for (var i = 0; i < _tunerServer.Count(); i++)
+                {
+                    await _tunerServer[i].GetDeviceInfo(cancellationToken);
+                    config.TunerHostsConfiguration[i].ServerId = _tunerServer[i].HostId;
+                }
+            }
+            Plugin.Instance.SaveConfiguration();
         }
 
         public string DataPath

@@ -1,6 +1,8 @@
 ﻿using MediaBrowser.Model.Plugins;
 using System;
 using System.Collections.Generic;
+using DVBViewer.EPGProvider;
+using DVBViewer.TunerHost;
 
 namespace DVBViewer.Configuration
 {
@@ -65,6 +67,4 @@ namespace DVBViewer.Configuration
         public ConfigurationField[] DefaultConfigurationFields { get; set; }
 
     }
-
-
 }

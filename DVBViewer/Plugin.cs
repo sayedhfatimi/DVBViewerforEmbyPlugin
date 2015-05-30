@@ -42,7 +42,7 @@ namespace DVBViewer
         public static Plugin Instance { get; private set; }
 
         public event EventHandler ConfigurationUpdated;
-        //public delegate void EventHandler(Plugin plugin, EventArgs e);
+        public delegate void EventHandler(Plugin plugin, EventArgs e);
 
         public override void UpdateConfiguration(BasePluginConfiguration configuration)
         {

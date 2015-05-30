@@ -13,6 +13,8 @@ using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.MediaInfo;
 using System.Xml;
 using DVBViewer.Api;
+using System;
+using DVBViewer.GeneralHelpers;
 
 namespace DVBViewer.TunerHost.HostDefinitions
 {
@@ -23,6 +25,7 @@ namespace DVBViewer.TunerHost.HostDefinitions
         public bool Enabled { get; set; }
         public string model { get; set; }
         public string deviceID { get; set; }
+        public string firmware { get; set; }
         public List<LiveTvTunerInfo> tuners;
 
         public string getWebUrl()
@@ -33,6 +36,11 @@ namespace DVBViewer.TunerHost.HostDefinitions
         public DVBViewer(ILogger logger, IJsonSerializer jsonSerializer, IHttpClient httpClient)
         {
             tuners = new List<LiveTvTunerInfo>();
+        }
+
+        public DVBViewer()
+        {
+
         }
 
         public string HostId
@@ -53,6 +61,11 @@ namespace DVBViewer.TunerHost.HostDefinitions
         {
             model = "";
             deviceID = "";
+            firmware = "";
+            if (String.IsNullOrWhiteSpace(model))
+            {
+                throw new ApplicationException("Failed to locate the tuner host.");
+            }
         }
 
         public async Task<List<LiveTvTunerInfo>> GetTunersInfo(CancellationToken cancellationToken)
@@ -110,6 +123,11 @@ namespace DVBViewer.TunerHost.HostDefinitions
                     }
                 }
             };
+        }
+
+        public void RefreshConfiguration()
+        {
+            throw new NotImplementedException();
         }
 
         public IEnumerable<ConfigurationField> GetFieldBuilder()

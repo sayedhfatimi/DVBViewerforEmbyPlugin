@@ -40,7 +40,7 @@
             </div>
         </div>
         <script type="text/javascript">
-            var DVBViewerConfigurationPage = { pluginUniqueId: "a77e4479-24df-4578-95b0-4674ef6414a0" };
+                var DVBViewerConfigurationPage = { pluginUniqueId: "a77e4479-24df-4578-95b0-4674ef6414a0" };
                 /*http://stackoverflow.com/questions/237104/array-containsobj-in-javascript*/
                 function contains(a, obj) {
                     for (var i = 0; i < a.length; i++) {
@@ -100,7 +100,7 @@
                     }
                     return options;
                 }
-                function getTargetListHtml(config,defaults) {
+                function getTargetListHtml(config, defaults) {
                     var html = '';
                     html += '<ul id="tunerHostList" data-inset="true" data-role="listview" data-split-icon="minus">';
                     html += '<li data-role="list-divider">Tuner Hosts ';
@@ -200,7 +200,7 @@
                 function fillFormData(page) {
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(DVBViewerConfigurationPage.pluginUniqueId).done(function (config) {
-                        ApiClient.getJSON(ApiClient.getUrl('/DVBViewer/Tuner/ConfigurationFields')).done(function(response) {
+                        ApiClient.getJSON(ApiClient.getUrl('/DVBViewer/Tuner/ConfigurationFields')).done(function (response) {
                             loadPageData(page, config, response.DefaultsBuilders);
                             Dashboard.hideLoadingMsg();
                         });
@@ -250,7 +250,6 @@
                     });
                     return false;
                 });
-            })();
         </script>
     </div>
 </body>
