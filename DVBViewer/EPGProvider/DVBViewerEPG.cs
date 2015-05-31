@@ -34,50 +34,65 @@ namespace DVBViewer.EPGProvider
 
         private async Task<string> getepgID(string channelNumber)
         {
-            XmlElement root = await DVBViewerAPI.getChannels();
+            try {
+                XmlElement root = await DVBViewerAPI.getChannels();
 
-            XmlNodeList channelNodes = root.SelectNodes("//channels/root/group/channel");
+                XmlNodeList channelNodes = root.SelectNodes("//channels/root/group/channel");
 
-            string epgID;
+                string epgID;
 
-            for (int i = 0; i < channelNodes.Count; i++)
-            {
-                if (channelNodes[i].Attributes["nr"].Value.ToString() == channelNumber) {
-                    return epgID = channelNodes[i].Attributes["EPGID"].Value.ToString();
+                for (int i = 0; i < channelNodes.Count; i++)
+                {
+                    if (channelNodes[i].Attributes["nr"].Value.ToString() == channelNumber) {
+                        return epgID = channelNodes[i].Attributes["EPGID"].Value.ToString();
+                    }
                 }
+            }
+            catch
+            {
+                _logger.Error("Can't Retrieve Channel List for EPG");
             }
             return null;
         }
 
         public async Task<IEnumerable<ProgramInfo>> getEPGList(string channelNumber)
         {
-            programsInfo = new List<ProgramInfo>();
+            try {
+                XmlElement epgData = await DVBViewerAPI.getEPGData(await getepgID(channelNumber));
 
-            XmlElement epgData = await DVBViewerAPI.getEPGData(await getepgID(channelNumber));
-
-            XmlNodeList epgList = epgData.SelectNodes("//programme");
-
-            var items = new List<ProgramInfo>();
-
-            for(int i = 0; i < epgList.Count; i++)
-            {
-                var item = new ProgramInfo
+                if (epgData == null) { _logger.Error("No EPG Data"); }
+                else
                 {
-                    ChannelId = epgData.GetElementsByTagName("eventid").Item(i).Value.ToString(),
-                    Id = channelNumber,
-                    Name = epgData.GetElementsByTagName("title").Item(i).Value.ToString(),
-                    Overview = epgData.GetElementsByTagName("event").Item(i).Value.ToString(),
-                    //StartDate = Helpers.convertToDateTime(epgList[i].Attributes["start"].Value.ToString()),
-                    //EndDate = Helpers.convertToDateTime(epgList[i].Attributes["stop"].Value.ToString())
-                    StartDate = DateTime.UtcNow,
-                    EndDate = DateTime.UtcNow.AddHours(3)
-                };
-                items.Add(item);
+                    XmlNodeList epgList = epgData.SelectNodes("//programme");
+
+                    programsInfo = new List<ProgramInfo>();
+
+                    var items = new List<ProgramInfo>();
+
+                    for (int i = 0; i < epgList.Count; i++)
+                    {
+                        var item = new ProgramInfo
+                        {
+                            ChannelId = channelNumber,
+                            Id = epgData.GetElementsByTagName("eventid").Item(i).Value.ToString(),
+                            Name = epgData.GetElementsByTagName("title").Item(i).Value.ToString(),
+                            Overview = epgData.GetElementsByTagName("event").Item(i).Value.ToString(),
+                            StartDate = Helpers.convertToDateTime(epgList[i].Attributes["start"].Value.ToString()),
+                            EndDate = Helpers.convertToDateTime(epgList[i].Attributes["stop"].Value.ToString())
+                        };
+                        items.Add(item);
+                    }
+
+                    programsInfo = items.ToList();
+
+                    return programsInfo;
+                }
             }
-
-            programsInfo = items.ToList();
-
-            return programsInfo;
+            catch(Exception ex)
+            {
+                _logger.Error("Can't Retrieve EPG List from Server", ex);
+            }
+            return null;
         }
     }
 }

@@ -119,17 +119,22 @@ namespace DVBViewer
         {
             var epgData = await _dvbEpg.getEPGList(channelId);
 
-            var programInfos = epgData as IList<ProgramInfo> ?? epgData.ToList();
+            if (epgData == null) { _logger.Error("No EPG Data retreived"); }
+            else {
 
-            if (!programInfos.Any())
-            {
-                epgData = GetEpgDataForChannel(channelId);
+                var programInfos = epgData as IList<ProgramInfo> ?? epgData.ToList();
+
+                if (!programInfos.Any())
+                {
+                    epgData = GetEpgDataForChannel(channelId);
+                }
+                else
+                {
+                    SaveEpgDataForChannel(channelId, programInfos);
+                }
+                return epgData;
             }
-            else
-            {
-                SaveEpgDataForChannel(channelId, programInfos);
-            }
-            return epgData;
+            return null;
         }
 
         public async Task<LiveTvServiceStatusInfo> GetStatusInfoAsync(CancellationToken cancellationToken)
