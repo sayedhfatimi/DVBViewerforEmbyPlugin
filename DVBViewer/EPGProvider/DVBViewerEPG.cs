@@ -16,12 +16,13 @@ using System.IO;
 
 namespace DVBViewer.EPGProvider
 {
-    public class DVBViewerEPG : IEpgSupplier
+    public class DVBViewerEPG
     {
         private readonly ILogger _logger;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IHttpClient _httpClient;
         public static DVBViewerEPG Current;
+        List<ProgramInfo> programsInfo;
 
         public DVBViewerEPG(ILogger logger, IJsonSerializer jsonSerializer, IHttpClient httpClient)
         {
@@ -48,9 +49,9 @@ namespace DVBViewer.EPGProvider
             return null;
         }
 
-        public async Task<IEnumerable<ProgramInfo>> getTvGuideForChannel(string channelNumber, DateTime start, DateTime end, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ProgramInfo>> getEPGList(string channelNumber)
         {
-            List<ProgramInfo> programsInfo = new List<ProgramInfo>();
+            programsInfo = new List<ProgramInfo>();
 
             XmlElement epgData = await DVBViewerAPI.getEPGData(await getepgID(channelNumber));
 

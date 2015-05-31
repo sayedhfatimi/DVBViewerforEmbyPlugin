@@ -28,7 +28,7 @@ namespace DVBViewer.Api
 
         public static async Task<XmlElement> getEPGData(string EPGID)
         {
-            string s = await webClient.DownloadStringTaskAsync("http://" + host + ":" + Port + "/api/epg.html?lvl=2&channel=" + EPGID);
+            string s = await webClient.DownloadStringTaskAsync("http://localhost:8089/api/epg.html?lvl=2&channel=" + EPGID);
 
             s.Remove(0, 41);
 

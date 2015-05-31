@@ -117,7 +117,7 @@ namespace DVBViewer
 
         public async Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
         {
-            var epgData = await _dvbEpg.getTvGuideForChannel(channelId, startDateUtc, endDateUtc, cancellationToken);
+            var epgData = await _dvbEpg.getEPGList(channelId);
 
             var programInfos = epgData as IList<ProgramInfo> ?? epgData.ToList();
 

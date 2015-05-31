@@ -66,7 +66,6 @@
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="EPGProvider\DVBViewerEPG.cs" />
-    <Compile Include="EPGProvider\IEpgProvider.cs" />
     <Compile Include="GeneralHelpers\Helpers.cs" />
     <Compile Include="LiveTVService.cs" />
     <Compile Include="Plugin.cs" />
